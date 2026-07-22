@@ -1,0 +1,132 @@
+table 'Measure Table'
+	lineageTag: ea987892-e8d9-4d50-bd44-46fc13bb350f
+
+	measure 'Total Loan Amount' = SUM(CreditRisk[loan_amnt])
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: ac739e8b-c797-4230-8aff-d8099a4e4c11
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Total Loans' = COUNT(CreditRisk[client_ID])
+		formatString: 0
+		lineageTag: f0364b10-d073-4437-94f3-1cb2d1043bda
+
+	measure 'Total Defaults' =
+			CALCULATE(
+			    COUNT(CreditRisk[client_ID]),
+			    CreditRisk[loan_status] = 1
+			)
+		formatString: 0
+		lineageTag: d226879c-51d1-447e-8d8b-cd6a68d73123
+
+	measure 'Loan Status' = IF(SELECTEDVALUE(CreditRisk[loan_status]) = 1, "Yes", "No")
+		formatString: 0
+		lineageTag: 21584c7b-06f8-45fc-bf08-dcbcf71c93c1
+
+	measure StateCity = SELECTEDVALUE(CreditRisk[state]) & ", " & SELECTEDVALUE(CreditRisk[city])
+		lineageTag: a22db885-7e07-4707-b91a-fa64b0b28b86
+
+	measure 'Avg Debt to Income' = AVERAGE(CreditRisk[debt_to_income_ratio])
+		lineageTag: 8624abc6-cff8-4a48-9580-405fa45f02e5
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg Interest Rate' = AVERAGE(CreditRisk[loan_int_rate])
+		lineageTag: 392cd754-e900-477a-9d47-80c7f780ed04
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg Loan Amount' = AVERAGE(CreditRisk[loan_amnt])
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 8d58e935-89be-434a-a80f-27f938acaed5
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Default Rate (%)' = DIVIDE([Total Defaults], [Total Loans], 0)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 521bf6b4-4ba7-4b74-9ee7-e8d48d19aada
+
+	measure 'Total Other Debts' = SUM(CreditRisk[other_debt])
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 86649c81-b361-41f9-bf1d-0c2c6f0e5056
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Total Income' = SUM(CreditRisk[person_income])
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 93b72650-2128-4218-b7be-3650dc371e63
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Avg Income' = AVERAGE(CreditRisk[person_income])
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: a2398091-c580-4b44-aa3d-a12bfd41f220
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Avg Loan Default' =
+			CALCULATE(
+			    AVERAGE(CreditRisk[loan_amnt]),
+			    CreditRisk[loan_status] = 1
+			)
+		formatString: 0
+		lineageTag: 8d6464e9-e054-41ac-b0bd-911672a355ad
+
+	measure 'Loan to Income Ratio' = [Avg Loan Amount]/[Avg Income]
+		lineageTag: 00e04de5-848f-4c68-9cc9-4c2357e3463b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Percentage Default Rate(Amount)' = ```
+			DIVIDE(
+			    CALCULATE(SUM(CreditRisk[loan_amnt]), CreditRisk[loan_status] = 1), 
+			    SUM(CreditRisk[loan_amnt]), BLANK())
+			```
+		lineageTag: 7e08020b-148b-446d-91ee-413c91f4a33e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Percentage Default Rate(Count)' = ```
+			DIVIDE(
+			    CALCULATE(COUNT(CreditRisk[loan_amnt]), CreditRisk[loan_status] = 1), 
+			    COUNT(CreditRisk[loan_amnt]), BLANK())
+			```
+		lineageTag: f049334a-2338-4412-add2-818e962accc0
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg Loan to Income' = AVERAGE(CreditRisk[loan_to_income_ratio])
+		lineageTag: 4029792c-89ea-4c5d-9b22-a00e2febf063
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg Credit Utilization' = AVERAGE(CreditRisk[credit_utilization_ratio])
+		lineageTag: b498f2c6-4970-4616-8225-b3e8d580f843
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'High Risk Borrowers' =
+			
+			CALCULATE(
+			    COUNT(CreditRisk[client_ID]),
+			    CreditRisk[High Risk Borrower] = "High Risk"
+			)
+		formatString: 0
+		lineageTag: 714f265d-2402-4d80-8f23-17a34fbe7500
+
+	measure 'High Risk (%)' = [High Risk Borrowers]/[Total Loans]
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 55c9a528-308f-4e10-a9cc-2ac561f34b9d
+
+	partition 'Measure Table' = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45W8nV1DA4NclWKjQUA", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Measures = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Measures", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"Measures"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+
