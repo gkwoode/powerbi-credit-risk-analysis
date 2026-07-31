@@ -6,15 +6,21 @@ model Model
 		legacyRedirects
 		returnErrorValuesAsNull
 
-annotation __PBI_TimeIntelligenceEnabled = 1
+annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBI_QueryOrder = ["CreditRisk","Measure Table"]
+annotation PBI_ProTooling = ["DevMode","MCP-PBIModeling"]
 
-annotation PBI_ProTooling = ["DevMode"]
+annotation PBI_QueryOrder = ["CreditRiskSource","Fact_CreditRisk","Dim_Geography","Dim_Loan","Dim_BorrowerProfile","Dim_AgeBand","Measure Table"]
 
-ref table CreditRisk
+ref table Fact_CreditRisk
 ref table 'Recovery Rate'
 ref table 'Measure Table'
+ref table Dim_Geography
+ref table Dim_Loan
+ref table Dim_BorrowerProfile
+ref table Dim_AgeBand
+ref table Dim_Date
+ref table 'Factor Importance'
 
 ref cultureInfo en-US
 

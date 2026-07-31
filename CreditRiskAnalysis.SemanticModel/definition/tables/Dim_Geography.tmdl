@@ -1,0 +1,58 @@
+/// Geography dimension: one row per country/state/city (18 rows).
+table Dim_Geography
+	lineageTag: 31c5879e-0faf-4042-8a99-e0c54aad694f
+
+	column GeographyKey
+		dataType: string
+		isHidden
+		lineageTag: d65b8511-cb84-4909-a0aa-1b435ed27baf
+		summarizeBy: none
+		sourceColumn: GeographyKey
+
+	column Country
+		dataType: string
+		lineageTag: 80781278-6f7b-4fe2-9088-f321b8980199
+		dataCategory: Country
+		summarizeBy: none
+		sourceColumn: Country
+
+	column State
+		dataType: string
+		lineageTag: 8f39ada9-3085-45fd-bf7f-4520c3ebe859
+		dataCategory: StateOrProvince
+		summarizeBy: none
+		sourceColumn: State
+
+	column City
+		dataType: string
+		lineageTag: 5eb2c1cc-3948-41d4-8a7b-309b8eda5223
+		dataCategory: City
+		summarizeBy: none
+		sourceColumn: City
+
+	column Latitude
+		dataType: double
+		lineageTag: 91ce7ce1-1418-44c3-a3b1-881970615084
+		dataCategory: Latitude
+		summarizeBy: none
+		sourceColumn: Latitude
+
+	column Longitude
+		dataType: double
+		lineageTag: bb340f72-003b-43ea-af4e-f9783ef24b31
+		dataCategory: Longitude
+		summarizeBy: none
+		sourceColumn: Longitude
+
+	partition Dim_Geography = m
+		mode: import
+		source =
+				let
+				    Source = CreditRiskSource,
+				    Selected = Table.SelectColumns(Source, {"GeographyKey","country","state","city","city_latitude","city_longitude"}),
+				    Deduped = Table.Distinct(Selected, {"GeographyKey"}),
+				    Renamed = Table.RenameColumns(Deduped, {{"country","Country"},{"state","State"},{"city","City"},{"city_latitude","Latitude"},{"city_longitude","Longitude"}}),
+				    Sorted = Table.Sort(Renamed, {{"Country", Order.Ascending},{"State", Order.Ascending},{"City", Order.Ascending}})
+				in
+				    Sorted
+

@@ -1,0 +1,66 @@
+/// Portfolio-wide comparison of how strongly each factor separates defaulters. Spread = highest band default rate minus lowest. Disconnected table: not affected by page slicers.
+table 'Factor Importance'
+	lineageTag: fc1240da-7034-42d9-97a3-1a685bfff91c
+
+	column Factor
+		lineageTag: 57fe7ce5-1219-4e48-a8be-143d2161a17c
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Factor]
+
+	column 'Lowest Band Rate'
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 920d4431-6cac-4f41-8fc3-3d35fd384aa0
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Lowest Band Rate]
+
+	column 'Highest Band Rate'
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: b95ad6e6-536a-432a-84ae-3d5e2d852369
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Highest Band Rate]
+
+	column Spread
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 66160ded-7fd9-489a-b7ed-e0fcf050dc20
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Spread]
+
+	partition 'Factor Importance' = calculated
+		mode: import
+		source =
+				VAR F0 = ADDCOLUMNS(VALUES(Fact_CreditRisk[LTI Band]), "@r", CALCULATE(AVERAGE(Fact_CreditRisk[loan_status])))
+				VAR F1 = ADDCOLUMNS(VALUES(Fact_CreditRisk[DTI Band]), "@r", CALCULATE(AVERAGE(Fact_CreditRisk[loan_status])))
+				VAR F2 = ADDCOLUMNS(VALUES(Fact_CreditRisk[Interest Rate Band]), "@r", CALCULATE(AVERAGE(Fact_CreditRisk[loan_status])))
+				VAR F3 = ADDCOLUMNS(VALUES(Fact_CreditRisk[Income Band]), "@r", CALCULATE(AVERAGE(Fact_CreditRisk[loan_status])))
+				VAR F4 = ADDCOLUMNS(VALUES(Dim_Loan[Loan Grade]), "@r", CALCULATE(AVERAGE(Fact_CreditRisk[loan_status])))
+				VAR F5 = ADDCOLUMNS(VALUES(Fact_CreditRisk[Loan Amount Band]), "@r", CALCULATE(AVERAGE(Fact_CreditRisk[loan_status])))
+				VAR F6 = ADDCOLUMNS(VALUES(Fact_CreditRisk[cb_person_default_on_file]), "@r", CALCULATE(AVERAGE(Fact_CreditRisk[loan_status])))
+				VAR F7 = ADDCOLUMNS(VALUES(Dim_BorrowerProfile[Home Ownership]), "@r", CALCULATE(AVERAGE(Fact_CreditRisk[loan_status])))
+				VAR F8 = ADDCOLUMNS(VALUES(Dim_Loan[Loan Intent]), "@r", CALCULATE(AVERAGE(Fact_CreditRisk[loan_status])))
+				VAR F9 = ADDCOLUMNS(VALUES(Fact_CreditRisk[past_delinquencies]), "@r", CALCULATE(AVERAGE(Fact_CreditRisk[loan_status])))
+				VAR F10 = ADDCOLUMNS(VALUES(Dim_BorrowerProfile[Employment Type]), "@r", CALCULATE(AVERAGE(Fact_CreditRisk[loan_status])))
+				VAR F11 = ADDCOLUMNS(VALUES(Dim_AgeBand[Age Band]), "@r", CALCULATE(AVERAGE(Fact_CreditRisk[loan_status])))
+				VAR F12 = ADDCOLUMNS(VALUES(Dim_Geography[Country]), "@r", CALCULATE(AVERAGE(Fact_CreditRisk[loan_status])))
+				VAR F13 = ADDCOLUMNS(VALUES(Fact_CreditRisk[Utilization Band]), "@r", CALCULATE(AVERAGE(Fact_CreditRisk[loan_status])))
+				RETURN
+				UNION(
+				    ROW("Factor", "Loan-to-Income Ratio", "Lowest Band Rate", MINX(F0, [@r]), "Highest Band Rate", MAXX(F0, [@r]), "Spread", MAXX(F0, [@r]) - MINX(F0, [@r])),
+				    ROW("Factor", "Debt-to-Income Ratio", "Lowest Band Rate", MINX(F1, [@r]), "Highest Band Rate", MAXX(F1, [@r]), "Spread", MAXX(F1, [@r]) - MINX(F1, [@r])),
+				    ROW("Factor", "Interest Rate", "Lowest Band Rate", MINX(F2, [@r]), "Highest Band Rate", MAXX(F2, [@r]), "Spread", MAXX(F2, [@r]) - MINX(F2, [@r])),
+				    ROW("Factor", "Borrower Income", "Lowest Band Rate", MINX(F3, [@r]), "Highest Band Rate", MAXX(F3, [@r]), "Spread", MAXX(F3, [@r]) - MINX(F3, [@r])),
+				    ROW("Factor", "Loan Grade", "Lowest Band Rate", MINX(F4, [@r]), "Highest Band Rate", MAXX(F4, [@r]), "Spread", MAXX(F4, [@r]) - MINX(F4, [@r])),
+				    ROW("Factor", "Loan Amount", "Lowest Band Rate", MINX(F5, [@r]), "Highest Band Rate", MAXX(F5, [@r]), "Spread", MAXX(F5, [@r]) - MINX(F5, [@r])),
+				    ROW("Factor", "Prior Default on File", "Lowest Band Rate", MINX(F6, [@r]), "Highest Band Rate", MAXX(F6, [@r]), "Spread", MAXX(F6, [@r]) - MINX(F6, [@r])),
+				    ROW("Factor", "Home Ownership", "Lowest Band Rate", MINX(F7, [@r]), "Highest Band Rate", MAXX(F7, [@r]), "Spread", MAXX(F7, [@r]) - MINX(F7, [@r])),
+				    ROW("Factor", "Loan Purpose", "Lowest Band Rate", MINX(F8, [@r]), "Highest Band Rate", MAXX(F8, [@r]), "Spread", MAXX(F8, [@r]) - MINX(F8, [@r])),
+				    ROW("Factor", "Past Delinquencies", "Lowest Band Rate", MINX(F9, [@r]), "Highest Band Rate", MAXX(F9, [@r]), "Spread", MAXX(F9, [@r]) - MINX(F9, [@r])),
+				    ROW("Factor", "Employment Type", "Lowest Band Rate", MINX(F10, [@r]), "Highest Band Rate", MAXX(F10, [@r]), "Spread", MAXX(F10, [@r]) - MINX(F10, [@r])),
+				    ROW("Factor", "Age Band", "Lowest Band Rate", MINX(F11, [@r]), "Highest Band Rate", MAXX(F11, [@r]), "Spread", MAXX(F11, [@r]) - MINX(F11, [@r])),
+				    ROW("Factor", "Country", "Lowest Band Rate", MINX(F12, [@r]), "Highest Band Rate", MAXX(F12, [@r]), "Spread", MAXX(F12, [@r]) - MINX(F12, [@r])),
+				    ROW("Factor", "Credit Utilisation", "Lowest Band Rate", MINX(F13, [@r]), "Highest Band Rate", MAXX(F13, [@r]), "Spread", MAXX(F13, [@r]) - MINX(F13, [@r]))
+				)
+

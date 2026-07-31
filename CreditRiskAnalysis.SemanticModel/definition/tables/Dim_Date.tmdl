@@ -1,0 +1,137 @@
+/// Standard calendar dimension, 2020-01-01 to 2030-12-31. NOT CONNECTED: the source data contains no date column, so there is no fact date to join to. Wire it to a loan origination date when one becomes available, then time-intelligence measures can be added.
+table Dim_Date
+	lineageTag: 84270b26-94d9-41d5-8237-260a21e3fe90
+	dataCategory: Time
+
+	column Date
+		isUnique
+		lineageTag: 2e5e0f80-eded-47aa-bdee-b5b93d0a3d67
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+	column DateKey
+		isHidden
+		lineageTag: b7435d84-91af-45a7-9caf-a8aaf870ffb2
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [DateKey]
+
+	column Year
+		lineageTag: be6473a4-da3e-420a-8a80-84fda9a51b29
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year]
+
+	column 'Quarter Number'
+		isHidden
+		lineageTag: 0efd6f8e-8532-4200-b2f5-e82cc61e162a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Quarter Number]
+
+	column Quarter
+		lineageTag: 9efd314f-245f-46b2-941e-5be6431fd698
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Quarter]
+		sortByColumn: 'Quarter Number'
+
+	column 'Year Quarter'
+		lineageTag: 7338fda5-4770-49b7-bcb5-7c6059ab4bb0
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Quarter]
+
+	column 'Month Number'
+		isHidden
+		lineageTag: dcc5f5c9-364f-47ed-a680-3e1df8393adf
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Number]
+
+	column Month
+		lineageTag: 0c7c395b-40a0-467c-9f32-85393756bfc3
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month]
+		sortByColumn: 'Month Number'
+
+	column 'Month Short'
+		lineageTag: c15f531f-490d-494e-bf4f-a8816d39786f
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Short]
+		sortByColumn: 'Month Number'
+
+	column 'Year Month Sort'
+		isHidden
+		lineageTag: 6018c0eb-46ef-4b8d-b98c-f237b53ea905
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Month Sort]
+
+	column 'Year Month'
+		lineageTag: 7f80b296-39fa-4195-a718-dd71ba8da132
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Month]
+		sortByColumn: 'Year Month Sort'
+
+	column 'Day of Month'
+		lineageTag: 3d2c8685-4928-4765-af2b-ff43061955e4
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Day of Month]
+
+	column 'Day of Week Number'
+		isHidden
+		lineageTag: 50470af4-54ee-404c-8050-4d45fc9f5ccd
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Day of Week Number]
+
+	column 'Day of Week'
+		lineageTag: 29051cbb-de9b-407e-80a6-96828155f85d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Day of Week]
+		sortByColumn: 'Day of Week Number'
+
+	column 'Week of Year'
+		lineageTag: 0687771a-bf2d-4ee8-ac48-e9a186a32bd0
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Week of Year]
+
+	column 'Is Weekend'
+		lineageTag: b5d2acbd-32af-4316-94be-5551589b93a7
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Is Weekend]
+
+	partition Dim_Date = calculated
+		mode: import
+		source =
+				VAR StartDate = DATE(2020,1,1)
+				VAR EndDate = DATE(2030,12,31)
+				RETURN
+				ADDCOLUMNS(
+				    CALENDAR(StartDate, EndDate),
+				    "DateKey", VALUE(FORMAT([Date],"YYYYMMDD")),
+				    "Year", YEAR([Date]),
+				    "Quarter Number", QUARTER([Date]),
+				    "Quarter", "Q" & QUARTER([Date]),
+				    "Year Quarter", FORMAT([Date],"YYYY") & "-Q" & QUARTER([Date]),
+				    "Month Number", MONTH([Date]),
+				    "Month", FORMAT([Date],"MMMM"),
+				    "Month Short", FORMAT([Date],"MMM"),
+				    "Year Month Sort", YEAR([Date]) * 100 + MONTH([Date]),
+				    "Year Month", FORMAT([Date],"MMM YYYY"),
+				    "Day of Month", DAY([Date]),
+				    "Day of Week Number", WEEKDAY([Date],2),
+				    "Day of Week", FORMAT([Date],"dddd"),
+				    "Week of Year", WEEKNUM([Date],2),
+				    "Is Weekend", WEEKDAY([Date],2) >= 6
+				)
+

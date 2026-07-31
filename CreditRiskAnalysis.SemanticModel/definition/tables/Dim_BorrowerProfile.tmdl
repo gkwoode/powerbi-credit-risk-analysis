@@ -1,0 +1,53 @@
+/// Junk dimension of borrower demographic attributes.
+table Dim_BorrowerProfile
+	lineageTag: 9e088dc3-3557-473a-917e-326269709317
+
+	column BorrowerProfileKey
+		dataType: string
+		isHidden
+		lineageTag: ddca59f5-a06c-4603-9df3-43d22c75914e
+		summarizeBy: none
+		sourceColumn: BorrowerProfileKey
+
+	column Gender
+		dataType: string
+		lineageTag: fc82c95d-2dad-4332-9b1d-3fa27290b02f
+		summarizeBy: none
+		sourceColumn: Gender
+
+	column 'Marital Status'
+		dataType: string
+		lineageTag: 8438deac-f11a-4b29-889b-2cb16b22d339
+		summarizeBy: none
+		sourceColumn: Marital Status
+
+	column 'Education Level'
+		dataType: string
+		lineageTag: f305e8a1-e349-4825-920a-f6888b5fd29a
+		summarizeBy: none
+		sourceColumn: Education Level
+
+	column 'Employment Type'
+		dataType: string
+		lineageTag: 0d2144fd-e9ff-414e-9315-640ef24c197c
+		summarizeBy: none
+		sourceColumn: Employment Type
+
+	column 'Home Ownership'
+		dataType: string
+		lineageTag: ea67feca-5ed6-468c-9690-9e82ef4dcb43
+		summarizeBy: none
+		sourceColumn: Home Ownership
+
+	partition Dim_BorrowerProfile = m
+		mode: import
+		source =
+				let
+				    Source = CreditRiskSource,
+				    Selected = Table.SelectColumns(Source, {"BorrowerProfileKey","gender","marital_status","education_level","employment_type","person_home_ownership"}),
+				    Deduped = Table.Distinct(Selected, {"BorrowerProfileKey"}),
+				    Renamed = Table.RenameColumns(Deduped, {{"gender","Gender"},{"marital_status","Marital Status"},{"education_level","Education Level"},{"employment_type","Employment Type"},{"person_home_ownership","Home Ownership"}}),
+				    Sorted = Table.Sort(Renamed, {{"Gender", Order.Ascending},{"Marital Status", Order.Ascending},{"Education Level", Order.Ascending},{"Employment Type", Order.Ascending}})
+				in
+				    Sorted
+

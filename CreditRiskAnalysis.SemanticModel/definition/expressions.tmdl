@@ -1,0 +1,23 @@
+/// Shared staging query for the CreditRisk star schema. Cleans the source and adds the natural keys consumed by Fact_CreditRisk and the Dim_* tables. Not loaded to the model.
+expression CreditRiskSource =
+		let
+		    Source = SharePoint.Files("https://relianceinfo.sharepoint.com/sites/BusinessApplication", [ApiVersion = 15]),
+		    #"Filtered Rows" = Table.SelectRows(Source, each Text.Contains([Folder Path], "Data Analyst Squad")),
+		    FileContent = #"Filtered Rows"{[Name="Credit_Risk_Dataset_Onyx_Data_September_25.xlsx",#"Folder Path"="https://relianceinfo.sharepoint.com/sites/BusinessApplication/Shared Documents/_Training/_Internal/Data Analyst Squad/Credit Risk Assignment/"]}[Content],
+		    #"Imported Excel Workbook" = Excel.Workbook(FileContent),
+		    #"Credit Risk Data_Sheet" = #"Imported Excel Workbook"{[Item="Credit Risk Data",Kind="Sheet"]}[Data],
+		    #"Promoted Headers" = Table.PromoteHeaders(#"Credit Risk Data_Sheet", [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"client_ID", type text}, {"person_age", Int64.Type}, {"person_income", Currency.Type}, {"person_home_ownership", type text}, {"person_emp_length", Int64.Type}, {"loan_intent", type text}, {"loan_grade", type text}, {"loan_amnt", Currency.Type}, {"loan_int_rate", type number}, {"loan_status", Int64.Type}, {"loan_percent_income", type number}, {"cb_person_default_on_file", type text}, {"cb_person_cred_hist_length", Int64.Type}, {"gender", type text}, {"marital_status", type text}, {"education_level", type text}, {"country", type text}, {"state", type text}, {"city", type text}, {"city_latitude", type number}, {"city_longitude", type number}, {"employment_type", type text}, {"loan_term_months", Int64.Type}, {"loan_to_income_ratio", type number}, {"other_debt", Currency.Type}, {"debt_to_income_ratio", type number}, {"open_accounts", Int64.Type}, {"credit_utilization_ratio", type number}, {"past_delinquencies", Int64.Type}}),
+		    #"Multiplied Column" = Table.TransformColumns(#"Changed Type", {{"loan_percent_income", each _ * 100, type number}}),
+		    #"Added Risk Flag" = Table.AddColumn(#"Multiplied Column", "Risk Flag", each if [loan_status] = 1 then "Default" else "Non Default", type text),
+		    #"Replaced Null Int Rate" = Table.ReplaceValue(#"Added Risk Flag",null,0,Replacer.ReplaceValue,{"loan_int_rate"}),
+		    #"Replaced Null Emp Length" = Table.ReplaceValue(#"Replaced Null Int Rate",null,0,Replacer.ReplaceValue,{"person_emp_length"}),
+		    #"Normalized Default On File" = Table.TransformColumns(#"Replaced Null Emp Length", {{"cb_person_default_on_file", each if _ = "Y" then "Yes" else if _ = "N" then "No" else _, type text}}),
+		    #"Added GeographyKey" = Table.AddColumn(#"Normalized Default On File", "GeographyKey", each [country] & "|" & [state] & "|" & [city], type text),
+		    #"Added LoanKey" = Table.AddColumn(#"Added GeographyKey", "LoanKey", each [loan_intent] & "|" & [loan_grade] & "|" & Text.From([loan_term_months]), type text),
+		    #"Added BorrowerProfileKey" = Table.AddColumn(#"Added LoanKey", "BorrowerProfileKey", each [gender] & "|" & [marital_status] & "|" & [education_level] & "|" & [employment_type] & "|" & [person_home_ownership], type text),
+		    #"Added AgeBandKey" = Table.AddColumn(#"Added BorrowerProfileKey", "AgeBandKey", each if [person_age] = null then null else Number.IntegerDivide([person_age], 10) * 10, Int64.Type)
+		in
+		    #"Added AgeBandKey"
+	lineageTag: b8d5abec-bcd2-4b94-a801-5a1f18d57fba
+

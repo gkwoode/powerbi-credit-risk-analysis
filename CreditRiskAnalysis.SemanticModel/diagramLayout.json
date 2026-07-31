@@ -5,26 +5,26 @@
       "ordinal": 0,
       "scrollPosition": {
         "x": 0,
-        "y": 0
+        "y": 78.666664123535156
       },
       "nodes": [
         {
           "location": {
-            "x": 0,
-            "y": 0
+            "x": 286.5887850467289,
+            "y": 313.392523364486
           },
-          "nodeIndex": "CreditRisk",
+          "nodeIndex": "Fact_CreditRisk",
           "nodeLineageTag": "2f96c1ca-8bdf-4716-ac5c-0ff41a20e623",
           "size": {
-            "height": 300,
+            "height": 501.86915887850466,
             "width": 234
           },
-          "zIndex": 0
+          "zIndex": 1
         },
         {
           "location": {
-            "x": 284,
-            "y": 38
+            "x": 835.54203201008738,
+            "y": 28.612149532710283
           },
           "nodeIndex": "Recovery Rate",
           "nodeLineageTag": "afe9fafd-1a19-4e28-9897-2fdc1959dfa8",
@@ -32,12 +32,12 @@
             "height": 224,
             "width": 234
           },
-          "zIndex": 0
+          "zIndex": 2
         },
         {
           "location": {
-            "x": 568,
-            "y": 98
+            "x": 834.6121495327103,
+            "y": 635.341121495327
           },
           "nodeIndex": "Measure Table",
           "nodeLineageTag": "ea987892-e8d9-4d50-bd44-46fc13bb350f",
@@ -45,11 +45,89 @@
             "height": 104,
             "width": 234
           },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 285.98130841121497,
+            "y": 26.144859813084054
+          },
+          "nodeIndex": "Dim_AgeBand",
+          "nodeLineageTag": "3503d1cc-80ce-480a-8f40-a71ebd880cc2",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 122.03738317757011
+          },
+          "nodeIndex": "Dim_BorrowerProfile",
+          "nodeLineageTag": "9e088dc3-3557-473a-917e-326269709317",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 5
+        },
+        {
+          "location": {
+            "x": 829.79906542056085,
+            "y": 299.72429906542061
+          },
+          "nodeIndex": "Dim_Date",
+          "nodeLineageTag": "84270b26-94d9-41d5-8237-260a21e3fe90",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 8
+        },
+        {
+          "location": {
+            "x": 552.35046728971963,
+            "y": 12.841121495327098
+          },
+          "nodeIndex": "Dim_Geography",
+          "nodeLineageTag": "31c5879e-0faf-4042-8a99-e0c54aad694f",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 6
+        },
+        {
+          "location": {
+            "x": 546.1635514018692,
+            "y": 575.15887850467288
+          },
+          "nodeIndex": "Dim_Loan",
+          "nodeLineageTag": "64a883a7-f7e8-4650-bdb5-6fd690a991f3",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 7
+        },
+        {
+          "location": {
+            "x": 808.14179336525751,
+            "y": 781.07897940618159
+          },
+          "nodeIndex": "Factor Importance",
+          "nodeLineageTag": "fc1240da-7034-42d9-97a3-1a685bfff91c",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
           "zIndex": 0
         }
       ],
       "name": "All tables",
-      "zoomValue": 95.111111111111114,
+      "zoomValue": 50,
       "pinKeyFieldsToTop": false,
       "showExtraHeaderInfo": false,
       "hideKeyFieldsWhenCollapsed": false,

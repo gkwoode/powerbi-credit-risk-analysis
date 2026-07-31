@@ -1,0 +1,41 @@
+/// Loan product dimension: distinct intent / grade / term combinations.
+table Dim_Loan
+	lineageTag: 64a883a7-f7e8-4650-bdb5-6fd690a991f3
+
+	column LoanKey
+		dataType: string
+		isHidden
+		lineageTag: 724d174f-8aec-4346-ae19-7da48be59e93
+		summarizeBy: none
+		sourceColumn: LoanKey
+
+	column 'Loan Intent'
+		dataType: string
+		lineageTag: 99c4645e-75f2-49a0-b681-fdb31477cb22
+		summarizeBy: none
+		sourceColumn: Loan Intent
+
+	column 'Loan Grade'
+		dataType: string
+		lineageTag: 2b101b4f-5d5d-4230-a8b1-e25183eb8c71
+		summarizeBy: none
+		sourceColumn: Loan Grade
+
+	column 'Loan Term (Months)'
+		dataType: int64
+		lineageTag: 5858732d-2cec-4f32-bf52-f24d2b1d397b
+		summarizeBy: none
+		sourceColumn: Loan Term (Months)
+
+	partition Dim_Loan = m
+		mode: import
+		source =
+				let
+				    Source = CreditRiskSource,
+				    Selected = Table.SelectColumns(Source, {"LoanKey","loan_intent","loan_grade","loan_term_months"}),
+				    Deduped = Table.Distinct(Selected, {"LoanKey"}),
+				    Renamed = Table.RenameColumns(Deduped, {{"loan_intent","Loan Intent"},{"loan_grade","Loan Grade"},{"loan_term_months","Loan Term (Months)"}}),
+				    Sorted = Table.Sort(Renamed, {{"Loan Grade", Order.Ascending},{"Loan Intent", Order.Ascending},{"Loan Term (Months)", Order.Ascending}})
+				in
+				    Sorted
+

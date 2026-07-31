@@ -1,0 +1,16 @@
+relationship Dim_Geography_Fact_CreditRisk
+	fromColumn: Fact_CreditRisk.GeographyKey
+	toColumn: Dim_Geography.GeographyKey
+
+relationship Dim_Loan_Fact_CreditRisk
+	fromColumn: Fact_CreditRisk.LoanKey
+	toColumn: Dim_Loan.LoanKey
+
+relationship Dim_BorrowerProfile_Fact_CreditRisk
+	fromColumn: Fact_CreditRisk.BorrowerProfileKey
+	toColumn: Dim_BorrowerProfile.BorrowerProfileKey
+
+relationship Dim_AgeBand_Fact_CreditRisk
+	fromColumn: Fact_CreditRisk.AgeBandKey
+	toColumn: Dim_AgeBand.AgeBandKey
+

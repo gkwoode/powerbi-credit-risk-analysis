@@ -1,0 +1,338 @@
+table Fact_CreditRisk
+	lineageTag: 2f96c1ca-8bdf-4716-ac5c-0ff41a20e623
+
+	/// Degenerate dimension: unique loan application identifier.
+	column client_ID
+		dataType: string
+		lineageTag: 657a9f41-53d5-4e17-bded-3d862e9f47d0
+		summarizeBy: none
+		sourceColumn: client_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Borrower age. Non-additive - use an average, not a sum.
+	column person_age
+		dataType: int64
+		formatString: 0
+		lineageTag: db30cb5e-f8b0-42d5-ab93-dc0f37313b2b
+		summarizeBy: none
+		sourceColumn: person_age
+
+		annotation SummarizationSetBy = Automatic
+
+	column person_income
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 101d3212-cff0-473c-80a9-5157785a2024
+		summarizeBy: sum
+		sourceColumn: person_income
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column person_emp_length
+		dataType: double
+		formatString: 0
+		lineageTag: 4875cce1-9f8b-41e6-8307-007dc211870d
+		summarizeBy: none
+		sourceColumn: person_emp_length
+
+		annotation SummarizationSetBy = Automatic
+
+	column loan_amnt
+		dataType: decimal
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: ce2ac456-40c9-416b-b06f-a80fa958f9f9
+		summarizeBy: sum
+		sourceColumn: loan_amnt
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column loan_int_rate
+		dataType: double
+		lineageTag: 42a17695-5804-4cf3-bee9-8b4d9ed99b69
+		summarizeBy: none
+		sourceColumn: loan_int_rate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Default flag: 1 = defaulted, 0 = performing.
+	column loan_status
+		dataType: int64
+		formatString: 0
+		lineageTag: 19c75bd6-8d53-4689-afa8-39f68b4942d8
+		summarizeBy: none
+		sourceColumn: loan_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column loan_percent_income
+		dataType: double
+		lineageTag: cd623cdb-42b8-43ed-993b-1928e8dc4331
+		summarizeBy: none
+		sourceColumn: loan_percent_income
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cb_person_default_on_file
+		dataType: string
+		lineageTag: 2ff18ae0-8e94-4a09-95d9-0119fe2b0ff5
+		summarizeBy: none
+		sourceColumn: cb_person_default_on_file
+
+		annotation SummarizationSetBy = Automatic
+
+	column cb_person_cred_hist_length
+		dataType: int64
+		formatString: 0
+		lineageTag: 98a7c957-feb0-4590-b37b-e89abfa5bb73
+		summarizeBy: none
+		sourceColumn: cb_person_cred_hist_length
+
+		annotation SummarizationSetBy = Automatic
+
+	column loan_to_income_ratio
+		dataType: double
+		lineageTag: 7ca43f13-a482-4e11-a288-877c83b6fa9e
+		summarizeBy: none
+		sourceColumn: loan_to_income_ratio
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column other_debt
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 2739cc11-dafe-4d42-9c55-1f3228ecb06c
+		summarizeBy: sum
+		sourceColumn: other_debt
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column debt_to_income_ratio
+		dataType: double
+		lineageTag: 34845afa-74bc-4fe3-9218-9cc1a41ed684
+		summarizeBy: none
+		sourceColumn: debt_to_income_ratio
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column open_accounts
+		dataType: int64
+		formatString: 0
+		lineageTag: ce15550b-3bf1-4a6f-a56b-ea042636fc94
+		summarizeBy: sum
+		sourceColumn: open_accounts
+
+		annotation SummarizationSetBy = Automatic
+
+	column credit_utilization_ratio
+		dataType: double
+		lineageTag: 9a3cb8c6-1dab-4e46-a056-5267eccb53cd
+		summarizeBy: none
+		sourceColumn: credit_utilization_ratio
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column past_delinquencies
+		dataType: int64
+		formatString: 0
+		lineageTag: 5be791ef-8386-4b53-b8fc-e6b2a0cc3aa9
+		summarizeBy: sum
+		sourceColumn: past_delinquencies
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Risk Flag'
+		dataType: string
+		lineageTag: 5571ef79-21c7-4bfe-a0b9-4b19c259d946
+		summarizeBy: none
+		sourceColumn: Risk Flag
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'High Risk Borrower' =
+			
+			IF(
+			    Fact_CreditRisk[debt_to_income_ratio] > 0.4 ||
+			    Fact_CreditRisk[credit_utilization_ratio] > 0.7 ||
+			    Fact_CreditRisk[past_delinquencies] > 0,
+			    "High Risk",
+			    "Low Risk"
+			)
+		lineageTag: 87f4c4cb-ebca-4fe8-8ded-4dba796f5a5c
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Bureau-based risk classification. Predicate fixed: previously compared against "Y", which never matched after the Power Query normalisation to Yes/No.
+	column 'Credit Risk' =
+			IF(
+			    Fact_CreditRisk[credit_utilization_ratio] > 0.7
+			        || Fact_CreditRisk[past_delinquencies] > 0
+			        || Fact_CreditRisk[cb_person_default_on_file] = "Yes",
+			    "High Risk",
+			    "Low Risk"
+			)
+		lineageTag: 6fa4b93e-09e8-44d5-ad20-e34f54c415fe
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// FK to Dim_Geography.
+	column GeographyKey
+		dataType: string
+		isHidden
+		lineageTag: e7b829b3-6036-4e35-922d-7e51f0985d78
+		summarizeBy: none
+		sourceColumn: GeographyKey
+
+	/// FK to Dim_Loan.
+	column LoanKey
+		dataType: string
+		isHidden
+		lineageTag: 3fa24470-8255-4058-9ac0-350ed6c33ce4
+		summarizeBy: none
+		sourceColumn: LoanKey
+
+	/// FK to Dim_BorrowerProfile.
+	column BorrowerProfileKey
+		dataType: string
+		isHidden
+		lineageTag: aabb36d0-3923-4541-ad2d-027f7582dcbb
+		summarizeBy: none
+		sourceColumn: BorrowerProfileKey
+
+	/// FK to Dim_AgeBand.
+	column AgeBandKey
+		dataType: int64
+		isHidden
+		lineageTag: 32b25916-06cb-49c0-ab0b-0eb99ef58e84
+		summarizeBy: none
+		sourceColumn: AgeBandKey
+
+	/// Debt-to-income banded for risk analysis.
+	column 'DTI Band' =
+			SWITCH(
+			    TRUE(),
+			    Fact_CreditRisk[debt_to_income_ratio] < 0.2, "1. Under 20%",
+			    Fact_CreditRisk[debt_to_income_ratio] < 0.35, "2. 20-35%",
+			    Fact_CreditRisk[debt_to_income_ratio] < 0.5, "3. 35-50%",
+			    "4. 50% and over"
+			)
+		lineageTag: 5554941d-e7fe-4b60-a1be-26a98fd988e3
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Loan-to-income banded for risk analysis.
+	column 'LTI Band' =
+			SWITCH(
+			    TRUE(),
+			    Fact_CreditRisk[loan_to_income_ratio] < 0.1, "1. Under 10%",
+			    Fact_CreditRisk[loan_to_income_ratio] < 0.2, "2. 10-20%",
+			    Fact_CreditRisk[loan_to_income_ratio] < 0.3, "3. 20-30%",
+			    "4. 30% and over"
+			)
+		lineageTag: 5a9f7819-d0ae-46bd-9e09-fbb991ef6891
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Borrower income banded.
+	column 'Income Band' =
+			SWITCH(
+			    TRUE(),
+			    Fact_CreditRisk[person_income] < 40000, "1. Under 40k",
+			    Fact_CreditRisk[person_income] < 70000, "2. 40-70k",
+			    Fact_CreditRisk[person_income] < 100000, "3. 70-100k",
+			    "4. 100k and over"
+			)
+		lineageTag: 890cae03-a33b-4933-aa56-d1eb3d7a4122
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Loan principal banded.
+	column 'Loan Amount Band' =
+			SWITCH(
+			    TRUE(),
+			    Fact_CreditRisk[loan_amnt] < 5000, "1. Under 5k",
+			    Fact_CreditRisk[loan_amnt] < 10000, "2. 5-10k",
+			    Fact_CreditRisk[loan_amnt] < 15000, "3. 10-15k",
+			    "4. 15k and over"
+			)
+		lineageTag: 25096f14-b121-4d54-bb7d-86ec6404aaf0
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Contract interest rate banded.
+	column 'Interest Rate Band' =
+			SWITCH(
+			    TRUE(),
+			    Fact_CreditRisk[loan_int_rate] < 8, "1. Under 8%",
+			    Fact_CreditRisk[loan_int_rate] < 11, "2. 8-11%",
+			    Fact_CreditRisk[loan_int_rate] < 14, "3. 11-14%",
+			    "4. 14% and over"
+			)
+		lineageTag: bcd6709a-8353-413c-a809-a9e554d8774f
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Credit utilisation banded.
+	column 'Utilization Band' =
+			SWITCH(
+			    TRUE(),
+			    Fact_CreditRisk[credit_utilization_ratio] < 0.3, "1. Under 30%",
+			    Fact_CreditRisk[credit_utilization_ratio] < 0.6, "2. 30-60%",
+			    Fact_CreditRisk[credit_utilization_ratio] < 0.8, "3. 60-80%",
+			    "4. 80% and over"
+			)
+		lineageTag: c014f46a-e0ba-4371-92fc-5c1e4c3c755b
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Affordability-based risk segment built on loan-to-income and debt-to-income, the two strongest predictors in this data. Separates 58.4% vs 10.6% default and flags only 16% of the book.
+	column 'Risk Segment' =
+			SWITCH(
+			    TRUE(),
+			    Fact_CreditRisk[loan_to_income_ratio] >= 0.3 || Fact_CreditRisk[debt_to_income_ratio] >= 0.5, "1. High Risk",
+			    Fact_CreditRisk[loan_to_income_ratio] >= 0.2 || Fact_CreditRisk[debt_to_income_ratio] >= 0.35, "2. Elevated Risk",
+			    Fact_CreditRisk[loan_to_income_ratio] >= 0.1 || Fact_CreditRisk[debt_to_income_ratio] >= 0.2, "3. Moderate Risk",
+			    "4. Low Risk"
+			)
+		lineageTag: b2c15c9a-e7a3-44f5-a93f-aee6759abce1
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Fact_CreditRisk = m
+		mode: import
+		source =
+				let
+				    Source = CreditRiskSource,
+				    #"Removed Dimension Attributes" = Table.RemoveColumns(Source, {"person_home_ownership","loan_intent","loan_grade","gender","marital_status","education_level","employment_type","country","state","city","city_latitude","city_longitude","loan_term_months"})
+				in
+				    #"Removed Dimension Attributes"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

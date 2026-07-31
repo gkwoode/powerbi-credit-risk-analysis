@@ -1,122 +1,132 @@
 table 'Measure Table'
 	lineageTag: ea987892-e8d9-4d50-bd44-46fc13bb350f
 
-	measure 'Total Loan Amount' = SUM(CreditRisk[loan_amnt])
+	/// Total principal advanced.
+	measure 'Total Loan Amount' = SUM(Fact_CreditRisk[loan_amnt])
 		formatString: \$#,0;(\$#,0);\$#,0
+		displayFolder: Volume
 		lineageTag: ac739e8b-c797-4230-8aff-d8099a4e4c11
 
 		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
 
-	measure 'Total Loans' = COUNT(CreditRisk[client_ID])
-		formatString: 0
+	/// Number of loan applications.
+	measure 'Total Loans' = COUNTROWS(Fact_CreditRisk)
+		formatString: #,0
+		displayFolder: Volume
 		lineageTag: f0364b10-d073-4437-94f3-1cb2d1043bda
 
-	measure 'Total Defaults' =
-			CALCULATE(
-			    COUNT(CreditRisk[client_ID]),
-			    CreditRisk[loan_status] = 1
-			)
-		formatString: 0
+	/// Count of loans flagged as defaulted.
+	measure 'Total Defaults' = CALCULATE([Total Loans], Fact_CreditRisk[loan_status] = 1)
+		formatString: #,0
+		displayFolder: Risk
 		lineageTag: d226879c-51d1-447e-8d8b-cd6a68d73123
 
-	measure 'Loan Status' = IF(SELECTEDVALUE(CreditRisk[loan_status]) = 1, "Yes", "No")
-		formatString: 0
-		lineageTag: 21584c7b-06f8-45fc-bf08-dcbcf71c93c1
-
-	measure StateCity = SELECTEDVALUE(CreditRisk[state]) & ", " & SELECTEDVALUE(CreditRisk[city])
-		lineageTag: a22db885-7e07-4707-b91a-fa64b0b28b86
-
-	measure 'Avg Debt to Income' = AVERAGE(CreditRisk[debt_to_income_ratio])
+	measure 'Avg Debt to Income' = AVERAGE(Fact_CreditRisk[debt_to_income_ratio])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Borrower
 		lineageTag: 8624abc6-cff8-4a48-9580-405fa45f02e5
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	measure 'Avg Interest Rate' = AVERAGE(CreditRisk[loan_int_rate])
+	measure 'Avg Interest Rate' = AVERAGE(Fact_CreditRisk[loan_int_rate])
+		formatString: 0.00
+		displayFolder: Borrower
 		lineageTag: 392cd754-e900-477a-9d47-80c7f780ed04
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	measure 'Avg Loan Amount' = AVERAGE(CreditRisk[loan_amnt])
-		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+	measure 'Avg Loan Amount' = AVERAGE(Fact_CreditRisk[loan_amnt])
+		formatString: \$#,0;(\$#,0);\$#,0
+		displayFolder: Volume
 		lineageTag: 8d58e935-89be-434a-a80f-27f938acaed5
 
 		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
 
-	measure 'Default Rate (%)' = DIVIDE([Total Defaults], [Total Loans], 0)
+	/// Defaults as a share of loan count.
+	measure 'Default Rate (%)' = DIVIDE([Total Defaults], [Total Loans])
 		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Risk
 		lineageTag: 521bf6b4-4ba7-4b74-9ee7-e8d48d19aada
 
-	measure 'Total Other Debts' = SUM(CreditRisk[other_debt])
-		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+	measure 'Total Other Debts' = SUM(Fact_CreditRisk[other_debt])
+		formatString: \$#,0;(\$#,0);\$#,0
+		displayFolder: Borrower
 		lineageTag: 86649c81-b361-41f9-bf1d-0c2c6f0e5056
 
 		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
 
-	measure 'Total Income' = SUM(CreditRisk[person_income])
-		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+	measure 'Total Income' = SUM(Fact_CreditRisk[person_income])
+		formatString: \$#,0;(\$#,0);\$#,0
+		displayFolder: Borrower
 		lineageTag: 93b72650-2128-4218-b7be-3650dc371e63
 
 		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
 
-	measure 'Avg Income' = AVERAGE(CreditRisk[person_income])
-		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+	measure 'Avg Income' = AVERAGE(Fact_CreditRisk[person_income])
+		formatString: \$#,0;(\$#,0);\$#,0
+		displayFolder: Borrower
 		lineageTag: a2398091-c580-4b44-aa3d-a12bfd41f220
 
 		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
 
-	measure 'Avg Loan Default' =
-			CALCULATE(
-			    AVERAGE(CreditRisk[loan_amnt]),
-			    CreditRisk[loan_status] = 1
-			)
-		formatString: 0
+	measure 'Avg Defaulted Loan Amount' = CALCULATE([Avg Loan Amount], Fact_CreditRisk[loan_status] = 1)
+		formatString: \$#,0;(\$#,0);\$#,0
+		displayFolder: Risk
 		lineageTag: 8d6464e9-e054-41ac-b0bd-911672a355ad
 
-	measure 'Loan to Income Ratio' = [Avg Loan Amount]/[Avg Income]
-		lineageTag: 00e04de5-848f-4c68-9cc9-4c2357e3463b
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
-	measure 'Percentage Default Rate(Amount)' = ```
-			DIVIDE(
-			    CALCULATE(SUM(CreditRisk[loan_amnt]), CreditRisk[loan_status] = 1), 
-			    SUM(CreditRisk[loan_amnt]), BLANK())
-			```
-		lineageTag: 7e08020b-148b-446d-91ee-413c91f4a33e
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
-	measure 'Percentage Default Rate(Count)' = ```
-			DIVIDE(
-			    CALCULATE(COUNT(CreditRisk[loan_amnt]), CreditRisk[loan_status] = 1), 
-			    COUNT(CreditRisk[loan_amnt]), BLANK())
-			```
-		lineageTag: f049334a-2338-4412-add2-818e962accc0
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
-	measure 'Avg Loan to Income' = AVERAGE(CreditRisk[loan_to_income_ratio])
+	measure 'Avg Loan to Income' = AVERAGE(Fact_CreditRisk[loan_to_income_ratio])
+		formatString: 0.00
+		displayFolder: Borrower
 		lineageTag: 4029792c-89ea-4c5d-9b22-a00e2febf063
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	measure 'Avg Credit Utilization' = AVERAGE(CreditRisk[credit_utilization_ratio])
+	measure 'Avg Credit Utilization' = AVERAGE(Fact_CreditRisk[credit_utilization_ratio])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Borrower
 		lineageTag: b498f2c6-4970-4616-8225-b3e8d580f843
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	measure 'High Risk Borrowers' =
-			
-			CALCULATE(
-			    COUNT(CreditRisk[client_ID]),
-			    CreditRisk[High Risk Borrower] = "High Risk"
-			)
-		formatString: 0
+	measure 'High Risk Borrowers' = CALCULATE([Total Loans], Fact_CreditRisk[High Risk Borrower] = "High Risk")
+		formatString: #,0
+		displayFolder: Risk
 		lineageTag: 714f265d-2402-4d80-8f23-17a34fbe7500
 
-	measure 'High Risk (%)' = [High Risk Borrowers]/[Total Loans]
+	measure 'High Risk (%)' = DIVIDE([High Risk Borrowers], [Total Loans])
 		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Risk
 		lineageTag: 55c9a528-308f-4e10-a9cc-2ac561f34b9d
+
+	/// Principal exposed on defaulted loans.
+	measure 'Defaulted Loan Amount' = CALCULATE([Total Loan Amount], Fact_CreditRisk[loan_status] = 1)
+		formatString: \$#,0;(\$#,0);\$#,0
+		displayFolder: Risk
+		lineageTag: a24576e8-fd20-42e9-aa14-77606bd7d7a3
+
+	/// Defaulted principal as a share of total principal.
+	measure 'Default Rate by Amount (%)' = DIVIDE([Defaulted Loan Amount], [Total Loan Amount])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Risk
+		lineageTag: 10d92056-e376-4bcd-ae13-f7cda8ecf3a9
+
+	/// Defaulted principal net of recoveries, driven by the Recovery Rate what-if parameter (default 50%).
+	measure 'Expected Loss' = [Defaulted Loan Amount] * (1 - [Recovery Rate Value])
+		formatString: \$#,0;(\$#,0);\$#,0
+		displayFolder: Risk
+		lineageTag: b1234a78-39f6-4dca-a000-994cd946cb1f
+
+	/// How much this factor separates defaulters (highest band rate minus lowest).
+	measure 'Factor Spread' = SUM('Factor Importance'[Spread])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Risk
+		lineageTag: e124228f-392b-4514-8f53-521dc2e754f8
+
+	/// Share of principal sitting in the High Risk affordability segment.
+	measure 'High Risk Exposure (%)' = DIVIDE(CALCULATE([Total Loan Amount], Fact_CreditRisk[Risk Segment] = "1. High Risk"), [Total Loan Amount])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Risk
+		lineageTag: 2d5e2c06-57f3-4e07-8190-88fbfc822ec7
 
 	partition 'Measure Table' = m
 		mode: import

@@ -1,0 +1,31 @@
+/// Borrower age banded into 10-year groups.
+table Dim_AgeBand
+	lineageTag: 3503d1cc-80ce-480a-8f40-a71ebd880cc2
+
+	column AgeBandKey
+		dataType: int64
+		isHidden
+		lineageTag: 9d92e09c-61b0-40fb-8fd9-65d6a70a1321
+		summarizeBy: none
+		sourceColumn: AgeBandKey
+
+	column 'Age Band'
+		dataType: string
+		lineageTag: 96f06760-2045-4670-b19a-fae8c072f3d1
+		summarizeBy: none
+		sourceColumn: Age Band
+		sortByColumn: AgeBandKey
+
+	partition Dim_AgeBand = m
+		mode: import
+		source =
+				let
+				    Source = CreditRiskSource,
+				    Selected = Table.SelectColumns(Source, {"AgeBandKey"}),
+				    Deduped = Table.Distinct(Selected),
+				    Cleaned = Table.SelectRows(Deduped, each [AgeBandKey] <> null),
+				    Labeled = Table.AddColumn(Cleaned, "Age Band", each Text.From([AgeBandKey]) & " - " & Text.From([AgeBandKey] + 9), type text),
+				    Sorted = Table.Sort(Labeled, {{"AgeBandKey", Order.Ascending}})
+				in
+				    Sorted
+

@@ -1,11 +1,14 @@
 table 'Recovery Rate'
+	isHidden
 	lineageTag: afe9fafd-1a19-4e28-9897-2fdc1959dfa8
 
 	measure 'Recovery Rate Value' = SELECTEDVALUE('Recovery Rate'[Recovery Rate], 0.50)
 		formatString: 0.00%;-0.00%;0.00%
+		isHidden
 		lineageTag: 187034ce-715d-431e-987c-3175cabefd76
 
 	column 'Recovery Rate'
+		isHidden
 		formatString: 0.00%;-0.00%;0.00%
 		lineageTag: 7978f4b0-bf3c-4403-85de-52a842037dec
 		summarizeBy: none
